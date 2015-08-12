@@ -1,0 +1,25 @@
+{
+  "name": "polymer-offline-weather",
+  "version": "1.0.0",
+  "authors": [
+    "Jeff Posnick <jeffy@google.com>"
+  ],
+  "description": "A codelab demonstrating the <platinum-sw> Polymer elements. Works offline, and displays weather using the Yahoo! Weather API.",
+  "main": "index.html",
+  "keywords": [
+    "weather",
+    "codelab",
+    "service",
+    "worker",
+    "offline",
+    "polymer"
+  ],
+  "license": "Apache-2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
