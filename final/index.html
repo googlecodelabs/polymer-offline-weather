@@ -22,16 +22,7 @@ limitations under the License.
     <link rel="icon" href="../common/icon.png">
 
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
-    <link rel="import" href="../bower_components/geo-location/geo-location.html">
-    <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
-    <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
-    <link rel="import" href="../bower_components/iron-icons/image-icons.html">
-    <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-    <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-    <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
-    <link rel="import" href="../bower_components/paper-styles/classes/global.html">
-    <link rel="import" href="../bower_components/paper-styles/classes/shadow-layout.html">
-    <link rel="import" href="../bower_components/platinum-sw/platinum-sw-elements.html">
+    <link rel="import" href="../common/elements.html">
 
     <style>
       body {
@@ -114,10 +105,16 @@ limitations under the License.
 
     <script>
       var t = document.querySelector('#t');
+
       t.weatherApiUrl = 'https://query.yahooapis.com/v1/public/yql';
+
+      // Use the lat/long for NY, NY as a fallback in case the user declines the prompt for
+      // Location permissions.
       t.latitude = 40.7413065;
       t.longitude = -74.0033653;
 
+      // If there is a previously cached weather API response, use that to populate the UI as soon
+      // as the application loads, instead of showing the "Loading..." spinner.
       if ('caches' in window) {
         window.caches.match(t.weatherApiUrl).then(function(response) {
           if (response) {
@@ -143,6 +140,7 @@ limitations under the License.
         t.weatherResponse = e.detail.response;
       };
 
+      // See https://developer.yahoo.com/weather/
       t._calculateWeatherParams = function(latitude, longitude) {
         var latLongString = latitude + ',' + longitude;
         return {
@@ -152,6 +150,8 @@ limitations under the License.
         };
       };
 
+      // See https://developer.yahoo.com/weather/documentation.html#codes for a list of codes.
+      // There are a few mismatches, limited by the set of weather-related Material Design icons.
       t._calculateWeatherIcon = function(code) {
         if (code <= 12 || code >= 37) {
           return 'image:flash-on';
