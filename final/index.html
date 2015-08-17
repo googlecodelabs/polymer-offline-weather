@@ -74,32 +74,30 @@ limitations under the License.
       </template>
 
       <template is="dom-if" if="[[weatherResponse]]">
-        <div class="vertical center layout">
-          <h3>
-            Weather for
-            <span>[[_calculateLocationString(weatherResponse.query.results.channel.location)]]</span>
-          </h3>
-          <iron-icon id="weather-icon"
-                     icon="[[_calculateWeatherIcon(weatherResponse.query.results.channel.item.condition.code)]]">
-          </iron-icon>
-          <h2>
-            <span>[[weatherResponse.query.results.channel.item.condition.temp]]</span>°
-            <span>[[weatherResponse.query.results.channel.units.temperature]]</span>,
-            <span>[[weatherResponse.query.results.channel.item.condition.text]]</span>
-          </h2>
-          <div class="horizontal justified layout">
-            <h5 id="update-time">
-              As of <span>[[weatherResponse.query.results.channel.item.condition.date]]</span>
-            </h5>
-            <paper-icon-button icon="refresh"
-                               disabled$="[[disableRefreshButton]]"
-                               on-click="_requestWeatherData">
-            </paper-icon-button>
-          </div>
-          <a href="https://www.yahoo.com/?ilc=401" target="_blank">
-            <img src="https://poweredby.yahoo.com/purple.png">
-          </a>
+        <h3>
+          Weather for
+          <span>[[_calculateLocationString(weatherResponse.query.results.channel.location)]]</span>
+        </h3>
+        <iron-icon id="weather-icon"
+                   icon="[[_calculateWeatherIcon(weatherResponse.query.results.channel.item.condition.code)]]">
+        </iron-icon>
+        <h2>
+          <span>[[weatherResponse.query.results.channel.item.condition.temp]]</span>°
+          <span>[[weatherResponse.query.results.channel.units.temperature]]</span>,
+          <span>[[weatherResponse.query.results.channel.item.condition.text]]</span>
+        </h2>
+        <div class="horizontal justified layout">
+          <h5 id="update-time">
+            As of <span>[[weatherResponse.query.results.channel.item.condition.date]]</span>
+          </h5>
+          <paper-icon-button icon="refresh"
+                             disabled$="[[disableRefreshButton]]"
+                             on-click="_requestWeatherData">
+          </paper-icon-button>
         </div>
+        <a href="https://www.yahoo.com/?ilc=401" target="_blank">
+          <img src="https://poweredby.yahoo.com/purple.png">
+        </a>
       </template>
     </template>
 
