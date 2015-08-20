@@ -45,7 +45,8 @@ limitations under the License.
     <template is="dom-bind" id="t">
       <platinum-sw-register skip-waiting
                             clients-claim
-                            auto-register>
+                            auto-register
+                            reload-on-install>
         <platinum-sw-import-script href="weather-fetch-handler.js"></platinum-sw-import-script>
         <platinum-sw-fetch handler="weatherFetchHandler"
                            path="/v1/public/yql"
