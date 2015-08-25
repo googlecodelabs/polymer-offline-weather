@@ -24,7 +24,7 @@ limitations under the License.
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <link rel="import" href="../common/elements.html">
 
-    <style is="custom-style">
+    <style>
       body {
         background-color: #e0f7fa;
         color: #006064;
@@ -38,32 +38,11 @@ limitations under the License.
       #update-time {
         margin-top: 8px;
       }
-
-      #request-progress {
-        --paper-progress-active-color: #006064;
-        --paper-progress-container-color: #e0f7fa;
-        left: 0;
-        position: fixed;
-        top: 0;
-        width: 100%;
-      }
     </style>
   </head>
 
   <body class="fit vertical layout center-center">
     <template is="dom-bind" id="t">
-      <platinum-sw-register skip-waiting
-                            clients-claim
-                            auto-register
-                            reload-on-install>
-        <platinum-sw-import-script href="weather-fetch-handler.js"></platinum-sw-import-script>
-        <platinum-sw-fetch handler="weatherFetchHandler"
-                           path="/v1/public/yql"
-                           origin="https://query.yahooapis.com">
-        </platinum-sw-fetch>
-        <platinum-sw-cache default-cache-strategy="fastest"></platinum-sw-cache>
-      </platinum-sw-register>
-
       <geo-location latitude="{{latitude}}"
                     longitude="{{longitude}}"
                     watch-pos
@@ -78,10 +57,10 @@ limitations under the License.
                  on-response="_handleWeatherResponse">
       </iron-ajax>
 
-      <paper-progress id="request-progress"
-                      indeterminate
-                      hidden$="[[!activeRequest]]">
-      </paper-progress>
+      <template is="dom-if" if="[[isLoading]]">
+        <h3>Loading...</h3>
+        <paper-spinner active></paper-spinner>
+      </template>
 
       <template is="dom-if" if="[[weatherResponse]]">
         <h3>
@@ -101,7 +80,7 @@ limitations under the License.
             As of <span>[[weatherResponse.query.results.channel.item.condition.date]]</span>
           </h5>
           <paper-icon-button icon="refresh"
-                             disabled$="[[activeRequest]]"
+                             disabled$="[[disableRefreshButton]]"
                              on-click="_requestWeatherData">
           </paper-icon-button>
         </div>
@@ -121,30 +100,14 @@ limitations under the License.
       t.latitude = 40.7413065;
       t.longitude = -74.0033653;
 
-      // If there is a previously cached weather API response, use that to populate the UI as soon
-      // as the application loads, instead of showing the "Loading..." spinner.
-      if ('caches' in window) {
-        window.caches.match(t.weatherApiUrl).then(function(response) {
-          if (response) {
-            response.json().then(function(json) {
-              t.weatherResponse = json;
-            });
-          } else {
-            t.isLoading = true;
-          }
-        });
-      } else {
-        t.isLoading = true;
-      }
-
       t._requestWeatherData = function() {
-        t.activeRequest = true;
+        t.disableRefreshButton = true;
         document.querySelector('#weather-ajax').generateRequest();
       };
 
       t._handleWeatherResponse = function(e) {
         t.isLoading = false;
-        t.activeRequest = false;
+        t.disableRefreshButton = false;
         t.weatherResponse = e.detail.response;
       };
 
