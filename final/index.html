@@ -24,7 +24,7 @@ limitations under the License.
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <link rel="import" href="../common/elements.html">
 
-    <style>
+    <style is="custom-style">
       body {
         background-color: #e0f7fa;
         color: #006064;
@@ -37,6 +37,15 @@ limitations under the License.
 
       #update-time {
         margin-top: 8px;
+      }
+
+      #request-progress {
+        --paper-progress-active-color: #006064;
+        --paper-progress-container-color: #e0f7fa;
+        left: 0;
+        position: fixed;
+        top: 0;
+        width: 100%;
       }
     </style>
   </head>
@@ -69,10 +78,10 @@ limitations under the License.
                  on-response="_handleWeatherResponse">
       </iron-ajax>
 
-      <template is="dom-if" if="[[isLoading]]">
-        <h3>Loading...</h3>
-        <paper-spinner active></paper-spinner>
-      </template>
+      <paper-progress id="request-progress"
+                      indeterminate
+                      hidden$="[[!activeRequest]]">
+      </paper-progress>
 
       <template is="dom-if" if="[[weatherResponse]]">
         <h3>
@@ -92,7 +101,7 @@ limitations under the License.
             As of <span>[[weatherResponse.query.results.channel.item.condition.date]]</span>
           </h5>
           <paper-icon-button icon="refresh"
-                             disabled$="[[disableRefreshButton]]"
+                             disabled$="[[activeRequest]]"
                              on-click="_requestWeatherData">
           </paper-icon-button>
         </div>
@@ -129,13 +138,13 @@ limitations under the License.
       }
 
       t._requestWeatherData = function() {
-        t.disableRefreshButton = true;
+        t.activeRequest = true;
         document.querySelector('#weather-ajax').generateRequest();
       };
 
       t._handleWeatherResponse = function(e) {
         t.isLoading = false;
-        t.disableRefreshButton = false;
+        t.activeRequest = false;
         t.weatherResponse = e.detail.response;
       };
 
