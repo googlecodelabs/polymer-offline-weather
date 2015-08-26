@@ -122,19 +122,16 @@ limitations under the License.
       t.longitude = -74.0033653;
 
       // If there is a previously cached weather API response, use that to populate the UI as soon
-      // as the application loads, instead of showing the "Loading..." spinner.
+      // as the application loads. This isn't strictly required, but it does mean we can display
+      // something immediately before we get a response back from the service worker.
       if ('caches' in window) {
         window.caches.match(t.weatherApiUrl).then(function(response) {
           if (response) {
             response.json().then(function(json) {
               t.weatherResponse = json;
             });
-          } else {
-            t.isLoading = true;
           }
         });
-      } else {
-        t.isLoading = true;
       }
 
       t._requestWeatherData = function() {
@@ -143,7 +140,6 @@ limitations under the License.
       };
 
       t._handleWeatherResponse = function(e) {
-        t.isLoading = false;
         t.activeRequest = false;
         t.weatherResponse = e.detail.response;
       };
