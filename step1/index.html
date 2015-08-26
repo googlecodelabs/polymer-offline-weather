@@ -1,0 +1,160 @@
+<!doctype html>
+<!--
+Copyright 2015 Google Inc. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Polymer Offline Weather</title>
+
+    <link rel="manifest" href="../common/manifest.json">
+    <meta name="theme-color" content="#006064">
+    <link rel="icon" href="../common/icon.png">
+
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../common/elements.html">
+
+    <style>
+      body {
+        background-color: #e0f7fa;
+        color: #006064;
+      }
+
+      #weather-icon {
+        width: 200px;
+        height: 200px;
+      }
+
+      #update-time {
+        margin-top: 8px;
+      }
+
+      #request-progress {
+        --paper-progress-active-color: #006064;
+        --paper-progress-container-color: #e0f7fa;
+        left: 0;
+        position: fixed;
+        top: 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body class="fit vertical layout center-center">
+    <template is="dom-bind" id="t">
+      <geo-location latitude="{{latitude}}"
+                    longitude="{{longitude}}"
+                    watch-pos
+                    on-geo-error="_requestWeatherData"
+                    on-geo-response="_requestWeatherData">
+      </geo-location>
+
+      <iron-ajax id="weather-ajax"
+                 url="[[weatherApiUrl]]"
+                 params="[[_calculateWeatherParams(latitude, longitude)]]"
+                 handle-as="json"
+                 on-response="_handleWeatherResponse">
+      </iron-ajax>
+
+      <paper-progress id="request-progress"
+                      indeterminate
+                      hidden$="[[!activeRequest]]">
+      </paper-progress>
+
+      <template is="dom-if" if="[[weatherResponse]]">
+        <h3>
+          Weather for
+          <span>[[_calculateLocationString(weatherResponse.query.results.channel.location)]]</span>
+        </h3>
+        <iron-icon id="weather-icon"
+                   icon="[[_calculateWeatherIcon(weatherResponse.query.results.channel.item.condition.code)]]">
+        </iron-icon>
+        <h2>
+          <span>[[weatherResponse.query.results.channel.item.condition.temp]]</span>°
+          <span>[[weatherResponse.query.results.channel.units.temperature]]</span>,
+          <span>[[weatherResponse.query.results.channel.item.condition.text]]</span>
+        </h2>
+        <div class="horizontal justified layout">
+          <h5 id="update-time">
+            As of <span>[[weatherResponse.query.results.channel.item.condition.date]]</span>
+          </h5>
+          <paper-icon-button icon="refresh"
+                             disabled$="[[disableRefreshButton]]"
+                             on-click="_requestWeatherData">
+          </paper-icon-button>
+        </div>
+        <a href="https://www.yahoo.com/?ilc=401" target="_blank">
+          <img src="https://poweredby.yahoo.com/purple.png">
+        </a>
+      </template>
+    </template>
+
+    <script>
+      var t = document.querySelector('#t');
+
+      t.weatherApiUrl = 'https://query.yahooapis.com/v1/public/yql';
+
+      // Use the lat/long for NY, NY as a fallback in case the user declines the prompt for
+      // Location permissions.
+      t.latitude = 40.7413065;
+      t.longitude = -74.0033653;
+
+      t._requestWeatherData = function() {
+        t.disableRefreshButton = true;
+        document.querySelector('#weather-ajax').generateRequest();
+      };
+
+      t._handleWeatherResponse = function(e) {
+        t.isLoading = false;
+        t.disableRefreshButton = false;
+        t.weatherResponse = e.detail.response;
+      };
+
+      // See https://developer.yahoo.com/weather/
+      t._calculateWeatherParams = function(latitude, longitude) {
+        var latLongString = latitude + ',' + longitude;
+        return {
+          format: 'json',
+          q: 'select * from weather.forecast where woeid in ' +
+             '(SELECT woeid FROM geo.placefinder WHERE text="' + latLongString + '" and gflags="R")'
+        };
+      };
+
+      // See https://developer.yahoo.com/weather/documentation.html#codes for a list of codes.
+      // There are a few mismatches, limited by the set of weather-related Material Design icons.
+      t._calculateWeatherIcon = function(code) {
+        if (code <= 12 || code >= 37) {
+          return 'image:flash-on';
+        }
+
+        if (code <= 18) {
+          return 'image:flare';
+        }
+
+        if (code <= 30) {
+          return 'image:wb-cloudy';
+        }
+
+        return 'image:wb-sunny';
+      };
+
+      t._calculateLocationString = function(location) {
+        if (location.city && location.region) {
+          return location.city + ', ' + location.region;
+        }
+
+        return location.city || 'Unknown';
+      }
+    </script>
+  </body>
+</html>
