@@ -38,6 +38,15 @@ limitations under the License.
       #update-time {
         margin-top: 8px;
       }
+
+      #request-progress {
+        --paper-progress-active-color: #006064;
+        --paper-progress-container-color: #e0f7fa;
+        left: 0;
+        position: fixed;
+        top: 0;
+        width: 100%;
+      }
     </style>
   </head>
 
@@ -57,10 +66,10 @@ limitations under the License.
                  on-response="_handleWeatherResponse">
       </iron-ajax>
 
-      <template is="dom-if" if="[[isLoading]]">
-        <h3>Loading...</h3>
-        <paper-spinner active></paper-spinner>
-      </template>
+      <paper-progress id="request-progress"
+                      indeterminate
+                      hidden$="[[!activeRequest]]">
+      </paper-progress>
 
       <template is="dom-if" if="[[weatherResponse]]">
         <h3>
