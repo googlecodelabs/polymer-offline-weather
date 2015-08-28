@@ -44,6 +44,10 @@ limitations under the License.
         width: 100%;
       }
 
+      #location {
+        margin-top: 4px;
+      }
+
       #update-time {
         margin-top: 8px;
       }
@@ -64,19 +68,16 @@ limitations under the License.
         <platinum-sw-cache default-cache-strategy="fastest"></platinum-sw-cache>
       </platinum-sw-register>
 
-      <geo-location latitude="{{latitude}}"
-                    longitude="{{longitude}}"
-                    watch-pos
-                    on-geo-error="_requestWeatherData"
-                    on-geo-response="_requestWeatherData">
-      </geo-location>
-
-      <iron-ajax id="weather-ajax"
-                 url="[[weatherApiUrl]]"
-                 params="[[_calculateWeatherParams(latitude, longitude)]]"
-                 handle-as="json"
-                 on-response="_handleWeatherResponse">
-      </iron-ajax>
+      <template is="dom-if" if="[[coordinates]]">
+        <iron-ajax id="weather-ajax"
+                   auto
+                   loading="{{activeRequest}}"
+                   url="[[weatherApiUrl]]"
+                   params="[[_calculateWeatherParams(coordinates.latitude, coordinates.longitude)]]"
+                   handle-as="json"
+                   last-response="{{weatherResponse}}">
+        </iron-ajax>
+      </template>
 
       <paper-progress id="request-progress"
                       indeterminate
@@ -84,13 +85,21 @@ limitations under the License.
       </paper-progress>
 
       <template is="dom-if" if="[[weatherResponse]]">
-        <h3>
-          Weather for
-          <span>[[_calculateLocationString(weatherResponse.query.results.channel.location)]]</span>
-        </h3>
+        <div class="horizontal justified layout">
+          <h3 id="location">
+            Weather for
+            <span>[[_calculateLocationString(weatherResponse.query.results.channel.location)]]</span>
+          </h3>
+          <paper-icon-button icon="maps:my-location"
+                             disabled$="[[disableLocationButton]]"
+                             on-click="_getCurrentPosition">
+          </paper-icon-button>
+        </div>
+
         <iron-icon id="weather-icon"
                    icon="[[_calculateWeatherIcon(weatherResponse.query.results.channel.item.condition.code)]]">
         </iron-icon>
+
         <h2>
           <span>[[weatherResponse.query.results.channel.item.condition.temp]]</span>°
           <span>[[weatherResponse.query.results.channel.units.temperature]]</span>,
@@ -101,7 +110,7 @@ limitations under the License.
             As of <span>[[weatherResponse.query.results.channel.item.condition.date]]</span>
           </h5>
           <paper-icon-button icon="refresh"
-                             disabled$="[[disableRefreshButton]]"
+                             disabled$="[[activeRequest]]"
                              on-click="_requestWeatherData">
           </paper-icon-button>
         </div>
@@ -116,20 +125,24 @@ limitations under the License.
 
       t.weatherApiUrl = 'https://query.yahooapis.com/v1/public/yql';
 
-      // Use the lat/long for NY, NY as a fallback in case the user declines the prompt for
-      // Location permissions.
-      t.latitude = 40.7413065;
-      t.longitude = -74.0033653;
-
-      t._requestWeatherData = function() {
-        t.disableRefreshButton = true;
-        document.querySelector('#weather-ajax').generateRequest();
+      // Use the lat/long for Mountain View, CA as the default location.
+      t.defaultCoordinates = {
+        latitude: 37.4209397,
+        longitude: -122.0934599
       };
 
-      t._handleWeatherResponse = function(e) {
-        t.isLoading = false;
-        t.disableRefreshButton = false;
-        t.weatherResponse = e.detail.response;
+      t._getCurrentPosition = function() {
+        t.disableLocationButton = true;
+        navigator.geolocation.getCurrentPosition(function(position) {
+          t.coordinates = position.coords;
+          t.disableLocationButton = false;
+        }, function(error) {
+          t.coordinates = t.defaultCoordinates;
+        });
+      };
+
+      t._requestWeatherData = function() {
+        document.querySelector('#weather-ajax').generateRequest();
       };
 
       // See https://developer.yahoo.com/weather/
@@ -166,6 +179,38 @@ limitations under the License.
         }
 
         return location.city || 'Unknown';
+      };
+
+      // http://updates.html5rocks.com/2015/04/permissions-api-for-the-web
+      if (navigator.permissions && navigator.permissions.query) {
+        // If the Permissions Query API is available, let's use it!
+        navigator.permissions.query({name: 'geolocation'}).then(function(permission) {
+          if (permission.state === 'granted') {
+            // If geolocation permissions were previously granted, then make a request for the
+            // most recent position.
+            t.activeRequest = true;
+            t._getCurrentPosition();
+          } else {
+            // If we don't have geolocation permission (yet), use the default coordinates instead
+            // of the real position.
+            t.coordinates = t.defaultCoordinates;
+            if (permission.state === 'denied') {
+              // If the user has denied geolocation permission, disable the "My Location" button.
+              t.disableLocationButton = true;
+            }
+          }
+
+          permission.addEventListener('change', function(e) {
+            if (e.target.state === 'denied') {
+              // If the user has denied geolocation permission, disable the "My Location" button.
+              t.disableLocationButton = true;
+            }
+          });
+        });
+      } else {
+        // If the Permissions Query API isn't available, just use the default coordinates each time.
+        // The "My Location" button can be used to obtain the real position.
+        t.coordinates = t.defaultCoordinates;
       }
     </script>
   </body>

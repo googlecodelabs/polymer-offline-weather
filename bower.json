@@ -24,7 +24,6 @@
   "dependencies": {
     "paper-elements": "polymerelements/paper-elements#^1.0.4",
     "iron-elements": "polymerelements/iron-elements#^1.0.3",
-    "platinum-sw": "polymerelements/platinum-sw#^1.2.0",
-    "geo-location": "ebidel/geo-location#^1.0.0"
+    "platinum-sw": "polymerelements/platinum-sw#^1.2.0"
   }
 }
