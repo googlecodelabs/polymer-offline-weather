@@ -84,6 +84,7 @@ limitations under the License.
             <span>[[_calculateLocationString(weatherResponse.query.results.channel.location)]]</span>
           </h3>
           <paper-icon-button icon="maps:my-location"
+                             alt="Detect current location"
                              disabled$="[[disableLocationButton]]"
                              on-click="_getCurrentPosition">
           </paper-icon-button>
@@ -103,6 +104,7 @@ limitations under the License.
             As of <span>[[weatherResponse.query.results.channel.item.condition.date]]</span>
           </h5>
           <paper-icon-button icon="refresh"
+                             alt="Refresh current weather"
                              disabled$="[[activeRequest]]"
                              on-click="_requestWeatherData">
           </paper-icon-button>
