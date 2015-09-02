@@ -24,39 +24,8 @@ limitations under the License.
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <link rel="import" href="../common/elements.html">
 
-    <style is="custom-style">
-      body {
-        background-color: #e0f7fa;
-        color: #006064;
-      }
-
-      #weather-icon {
-        width: 200px;
-        height: 200px;
-      }
-
-      #request-progress {
-        --paper-progress-active-color: #006064;
-        --paper-progress-container-color: #e0f7fa;
-        left: 0;
-        position: fixed;
-        top: 0;
-        width: 100%;
-      }
-
-      #location {
-        margin-top: 4px;
-      }
-
-      #update-time {
-        margin-top: 8px;
-      }
-
-      paper-icon-button {
-        height: 24px;
-        width: 24px;
-      }
-    </style>
+    <!-- See https://www.polymer-project.org/1.0/docs/devguide/styling.html#style-modules -->
+    <style is="custom-style" include="shared-styles"></style>
   </head>
 
   <body class="fit vertical layout center-center">
