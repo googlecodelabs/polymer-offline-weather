@@ -22,6 +22,7 @@
     "tests"
   ],
   "dependencies": {
+    "polymer": "Polymer/polymer#^1.1.0",
     "paper-elements": "polymerelements/paper-elements#^1.0.4",
     "iron-elements": "polymerelements/iron-elements#^1.0.3",
     "platinum-sw": "polymerelements/platinum-sw#^1.2.0"
