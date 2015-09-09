@@ -21,17 +21,23 @@
       }
 
       #location {
-        margin-top: 4px;
+        margin-top: 8px;
       }
 
       #update-time {
-        margin-top: 8px;
+        margin-top: 12px;
       }
 
       paper-icon-button {
         margin-left: 16px;
-        height: 24px;
-        width: 24px;
+        height: 32px;
+        width: 32px;
+      }
+
+      /* Needed until https://github.com/PolymerElements/paper-icon-button/pull/41 is live. */
+      paper-icon-button::shadow #icon {
+        width: 32px;
+        height: 32px;
       }
     </style>
   </template>
