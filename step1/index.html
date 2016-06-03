@@ -111,11 +111,11 @@ limitations under the License.
 
       // See https://developer.yahoo.com/weather/
       t._calculateWeatherParams = function(latitude, longitude) {
-        var latLongString = latitude + ',' + longitude;
+        var latLongString = '(' + latitude + ',' + longitude + ')';
         return {
           format: 'json',
           q: 'select * from weather.forecast where woeid in ' +
-             '(SELECT woeid FROM geo.placefinder WHERE text="' + latLongString + '" and gflags="R")'
+             '(SELECT woeid FROM geo.places(1) WHERE text="' + latLongString + '")'
         };
       };
 
