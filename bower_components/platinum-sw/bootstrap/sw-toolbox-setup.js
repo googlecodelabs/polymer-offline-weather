@@ -11,10 +11,10 @@
 (function(global) {
   var swToolboxURL = new URL('../sw-toolbox/sw-toolbox.js', global.params.get('baseURI')).href;
   importScripts(swToolboxURL);
-  
-  if (global.params.has('cacheId')) {
-    global.toolbox.options.cacheName = global.params.get('cacheId') + '$$$' +
-      global.registration.scope;
+
+  var cacheId = global.params.get('cacheId');
+  if (cacheId) {
+    global.toolbox.options.cacheName = cacheId + '$$$' + global.registration.scope;
   }
   
   if (global.params.has('defaultCacheStrategy')) {
@@ -39,7 +39,7 @@
       return precache.concat(global.params.get('precache'));
     })
   } else {
-    precachePromise = Promise.resolve(global.params.get('precache'));
+    precachePromise = Promise.resolve(global.params.get('precache') || []);
   }
 
   global.toolbox.precache(precachePromise);

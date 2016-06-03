@@ -43,6 +43,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     width: 200px;
   }
 
+  [hidden] {
+    display: none;
+  }
 </style>
 
 <body>
@@ -51,7 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <template>
       <div>
         <div id="target"></div>
-        <paper-tooltip for="target">Tooltip text</paper-tooltip>
+        <paper-tooltip for="target" animation-delay="0">Tooltip text</paper-tooltip>
       </div>
     </template>
   </test-fixture>
@@ -89,6 +92,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
+  <test-fixture id="no-offset-parent">
+    <template>
+      <div>
+        <div id="target"></div>
+        <paper-tooltip for="target" animation-delay="0" hidden></paper-tooltip>
+      </div>
+    </template>
+  </test-fixture>
+
   <script>
     function isHidden(element) {
       var rect = element.getBoundingClientRect();
@@ -118,6 +130,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         MockInteractions.focus(target);
         assert.isFalse(isHidden(actualTooltip));
+      });
+
+      test('tooltip doesn\'t throw an exception if it has no offsetParent', function() {
+        var f = fixture('no-offset-parent');
+        var target = f.querySelector('#target');
+        var tooltip = f.querySelector('paper-tooltip');
+
+        var actualTooltip = Polymer.dom(tooltip.root).querySelector('#tooltip');
+        assert.isTrue(isHidden(actualTooltip));
+        tooltip.updatePosition();
+        tooltip.show();
+
+        // Doesn't get shown since there's no position computed.
+        assert.isTrue(isHidden(actualTooltip));
       });
 
       test('tooltip is positioned correctly (bottom)', function() {
@@ -306,7 +332,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var actualTooltip = Polymer.dom(tooltip.root).querySelector('#tooltip');
         assert.isTrue(isHidden(actualTooltip));
-        MockInteractions.focus(target);
+        // Simulate but don't actually run the entry animation.
+        tooltip.toggleClass('hidden', false, actualTooltip);
+        tooltip._showing = true;
         assert.isFalse(isHidden(actualTooltip));
 
         tooltip.addEventListener('neon-animation-finish', function() {
@@ -346,7 +374,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       setup(function() {
         f = fixture('custom');
         target = f.$.button;
-        tooltip = f.$.tooltip;
+        tooltip = f.$.buttonTooltip;
       });
 
       test('tooltip is shown when target is focused', function() {
@@ -391,6 +419,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         assert.isTrue(tooltip.getAttribute('role') == 'tooltip');
       });
+
+      var ignoredRules = ['roleTooltipRequiresDescribedby'];
+
+      a11ySuite('basic', ignoredRules);
+      a11ySuite('fitted', ignoredRules);
+      a11ySuite('no-text', ignoredRules);
+      a11ySuite('dynamic', ignoredRules);
+      a11ySuite('custom', ignoredRules);
     });
   </script>
 </body>
